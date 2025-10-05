@@ -1654,328 +1654,358 @@ do
         Groupbox:Resize();
     end
 
-    function Funcs:AddInput(Idx, Info)
-        assert(Info.Text, 'AddInput: Missing `Text` string.')
+function Funcs:AddInput(Idx, Info)
+    assert(Info.Text, 'AddInput: Missing `Text` string.')
 
-        local Textbox = {
-            Value = Info.Default or '';
-            Numeric = Info.Numeric or false;
-            Finished = Info.Finished or false;
-            Type = 'Input';
-            Callback = Info.Callback or function(Value) end;
-        };
+    local Textbox = {
+        Value = Info.Default or '';
+        Numeric = Info.Numeric or false;
+        Finished = Info.Finished or false;
+        Type = 'Input';
+        Callback = Info.Callback or function(Value) end;
+    };
 
-        local Groupbox = self;
-        local Container = Groupbox.Container;
+    local Groupbox = self;
+    local Container = Groupbox.Container;
 
-        local InputLabel = Library:CreateLabel({
-            Size = UDim2.new(1, 0, 0, 15);
-            TextSize = 14;
-            Text = Info.Text;
-            TextXAlignment = Enum.TextXAlignment.Left;
-            ZIndex = 5;
-            Parent = Container;
+    local InputLabel = Library:CreateLabel({
+        Size = UDim2.new(1, 0, 0, 15);
+        TextSize = 14;
+        Text = Info.Text;
+        TextXAlignment = Enum.TextXAlignment.Left;
+        ZIndex = 5;
+        Parent = Container;
+    });
+
+    Groupbox:AddBlank(1);
+
+    local TextBoxOuter = Library:Create('Frame', {
+        BackgroundColor3 = Color3.new(0, 0, 0);
+        BorderColor3 = Color3.new(0, 0, 0);
+        Size = UDim2.new(1, -4, 0, 20);
+        ZIndex = 5;
+        Parent = Container;
+    });
+
+    local TextBoxInner = Library:Create('Frame', {
+        BackgroundColor3 = Library.MainColor;
+        BorderColor3 = Library.OutlineColor;
+        BorderMode = Enum.BorderMode.Inset;
+        Size = UDim2.new(1, 0, 1, 0);
+        ZIndex = 6;
+        Parent = TextBoxOuter;
+    });
+
+    Library:AddToRegistry(TextBoxInner, {
+        BackgroundColor3 = 'MainColor';
+        BorderColor3 = 'OutlineColor';
+    });
+
+    Library:OnHighlight(TextBoxOuter, TextBoxOuter,
+        { BorderColor3 = 'AccentColor' },
+        { BorderColor3 = 'Black' }
+    );
+
+    if type(Info.Tooltip) == 'string' then
+        Library:AddToolTip(Info.Tooltip, TextBoxOuter)
+    end
+
+    Library:Create('UIGradient', {
+        Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
+            ColorSequenceKeypoint.new(1, Color3.fromRGB(212, 212, 212))
         });
+        Rotation = 90;
+        Parent = TextBoxInner;
+    });
 
-        Groupbox:AddBlank(1);
+    local Container = Library:Create('Frame', {
+        BackgroundTransparency = 1;
+        ClipsDescendants = true;
 
-        local TextBoxOuter = Library:Create('Frame', {
-            BackgroundColor3 = Color3.new(0, 0, 0);
-            BorderColor3 = Color3.new(0, 0, 0);
-            Size = UDim2.new(1, -4, 0, 20);
-            ZIndex = 5;
-            Parent = Container;
-        });
+        Position = UDim2.new(0, 5, 0, 0);
+        Size = UDim2.new(1, -5, 1, 0);
 
-        local TextBoxInner = Library:Create('Frame', {
-            BackgroundColor3 = Library.MainColor;
-            BorderColor3 = Library.OutlineColor;
-            BorderMode = Enum.BorderMode.Inset;
-            Size = UDim2.new(1, 0, 1, 0);
-            ZIndex = 6;
-            Parent = TextBoxOuter;
-        });
+        ZIndex = 7;
+        Parent = TextBoxInner;
+    })
 
-        Library:AddToRegistry(TextBoxInner, {
-            BackgroundColor3 = 'MainColor';
-            BorderColor3 = 'OutlineColor';
-        });
+    local Box = Library:Create('TextBox', {
+        BackgroundTransparency = 1;
 
-        Library:OnHighlight(TextBoxOuter, TextBoxOuter,
-            { BorderColor3 = 'AccentColor' },
-            { BorderColor3 = 'Black' }
-        );
+        Position = UDim2.fromOffset(0, 0),
+        Size = UDim2.fromScale(5, 1),
 
-        if type(Info.Tooltip) == 'string' then
-            Library:AddToolTip(Info.Tooltip, TextBoxOuter)
-        end
+        Font = Library.Font;
+        PlaceholderColor3 = Color3.fromRGB(190, 190, 190);
+        PlaceholderText = Info.Placeholder or '';
 
-        Library:Create('UIGradient', {
-            Color = ColorSequence.new({
-                ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
-                ColorSequenceKeypoint.new(1, Color3.fromRGB(212, 212, 212))
-            });
-            Rotation = 90;
-            Parent = TextBoxInner;
-        });
+        Text = Info.Default or '';
+        TextColor3 = Library.FontColor;
+        TextSize = 14;
+        TextStrokeTransparency = 0;
+        TextXAlignment = Enum.TextXAlignment.Left;
+        MultiLine = false;  -- Mobile-friendly: single line
 
-        local Container = Library:Create('Frame', {
-            BackgroundTransparency = 1;
-            ClipsDescendants = true;
+        ZIndex = 7;
+        Parent = Container;
+    });
 
-            Position = UDim2.new(0, 5, 0, 0);
-            Size = UDim2.new(1, -5, 1, 0);
+    Library:ApplyTextStroke(Box);
 
-            ZIndex = 7;
-            Parent = TextBoxInner;
-        })
-
-        local Box = Library:Create('TextBox', {
-            BackgroundTransparency = 1;
-
-            Position = UDim2.fromOffset(0, 0),
-            Size = UDim2.fromScale(5, 1),
-
-            Font = Library.Font;
-            PlaceholderColor3 = Color3.fromRGB(190, 190, 190);
-            PlaceholderText = Info.Placeholder or '';
-
-            Text = Info.Default or '';
-            TextColor3 = Library.FontColor;
-            TextSize = 14;
-            TextStrokeTransparency = 0;
-            TextXAlignment = Enum.TextXAlignment.Left;
-
-            ZIndex = 7;
-            Parent = Container;
-        });
-
-        Library:ApplyTextStroke(Box);
-
-        function Textbox:SetValue(Text)
-            if Info.MaxLength and #Text > Info.MaxLength then
-                Text = Text:sub(1, Info.MaxLength);
-            end;
-
-            if Textbox.Numeric then
-                if (not tonumber(Text)) and Text:len() > 0 then
-                    Text = Textbox.Value
-                end
-            end
-
-            Textbox.Value = Text;
-            Box.Text = Text;
-
-            Library:SafeCallback(Textbox.Callback, Textbox.Value);
-            Library:SafeCallback(Textbox.Changed, Textbox.Value);
-        end;
-
-        if Textbox.Finished then
-            Box.FocusLost:Connect(function(enter)
-                if not enter then return end
-
-                Textbox:SetValue(Box.Text);
-                Library:AttemptSave();
-            end)
+    -- Mobile: Handle virtual keyboard visibility
+    local keyboardVisible = false;
+    local keyboardConn = UserInputService:GetPropertyChangedSignal("KeyboardEnabled"):Connect(function()
+        keyboardVisible = UserInputService.KeyboardEnabled;
+        if keyboardVisible then
+            TextBoxOuter:TweenPosition(UDim2.new(0, 0, 0, -150), "Out", "Quad", 0.2);  -- Shift up
         else
-            Box:GetPropertyChangedSignal('Text'):Connect(function()
-                Textbox:SetValue(Box.Text);
-                Library:AttemptSave();
-            end);
-        end
+            TextBoxOuter:TweenPosition(UDim2.new(0, 0, 0, 0), "Out", "Quad", 0.2);
+        end;
+    end);
 
-        -- https://devforum.roblox.com/t/how-to-make-textboxes-follow-current-cursor-position/1368429/6
-        -- thank you nicemike40 :)
+    function Textbox:SetValue(Text)
+        if Info.MaxLength and #Text > Info.MaxLength then
+            Text = Text:sub(1, Info.MaxLength);
+        end;
 
-        local function Update()
-            local PADDING = 2
-            local reveal = Container.AbsoluteSize.X
-
-            if not Box:IsFocused() or Box.TextBounds.X <= reveal - 2 * PADDING then
-                -- we aren't focused, or we fit so be normal
-                Box.Position = UDim2.new(0, PADDING, 0, 0)
-            else
-                -- we are focused and don't fit, so adjust position
-                local cursor = Box.CursorPosition
-                if cursor ~= -1 then
-                    -- calculate pixel width of text from start to cursor
-                    local subtext = string.sub(Box.Text, 1, cursor-1)
-                    local width = TextService:GetTextSize(subtext, Box.TextSize, Box.Font, Vector2.new(math.huge, math.huge)).X
-
-                    -- check if we're inside the box with the cursor
-                    local currentCursorPos = Box.Position.X.Offset + width
-
-                    -- adjust if necessary
-                    if currentCursorPos < PADDING then
-                        Box.Position = UDim2.fromOffset(PADDING-width, 0)
-                    elseif currentCursorPos > reveal - PADDING - 1 then
-                        Box.Position = UDim2.fromOffset(reveal-width-PADDING-1, 0)
-                    end
-                end
+        if Textbox.Numeric then
+            if (not tonumber(Text)) and Text:len() > 0 then
+                Text = Textbox.Value
             end
         end
 
-        task.spawn(Update)
+        Textbox.Value = Text;
+        Box.Text = Text;
 
-        Box:GetPropertyChangedSignal('Text'):Connect(Update)
-        Box:GetPropertyChangedSignal('CursorPosition'):Connect(Update)
-        Box.FocusLost:Connect(Update)
-        Box.Focused:Connect(Update)
-
-        Library:AddToRegistry(Box, {
-            TextColor3 = 'FontColor';
-        });
-
-        function Textbox:OnChanged(Func)
-            Textbox.Changed = Func;
-            Func(Textbox.Value);
-        end;
-
-        Groupbox:AddBlank(5);
-        Groupbox:Resize();
-
-        Options[Idx] = Textbox;
-
-        return Textbox;
+        Library:SafeCallback(Textbox.Callback, Textbox.Value);
+        Library:SafeCallback(Textbox.Changed, Textbox.Value);
     end;
 
-    function Funcs:AddToggle(Idx, Info)
-        assert(Info.Text, 'AddInput: Missing `Text` string.')
+    if Textbox.Finished then
+        Box.FocusLost:Connect(function(enter)
+            if not enter then return end
 
-        local Toggle = {
-            Value = Info.Default or false;
-            Type = 'Toggle';
-
-            Callback = Info.Callback or function(Value) end;
-            Addons = {},
-            Risky = Info.Risky,
-        };
-
-        local Groupbox = self;
-        local Container = Groupbox.Container;
-
-        local ToggleOuter = Library:Create('Frame', {
-            BackgroundColor3 = Color3.new(0, 0, 0);
-            BorderColor3 = Color3.new(0, 0, 0);
-            Size = UDim2.new(0, 13, 0, 13);
-            ZIndex = 5;
-            Parent = Container;
-        });
-
-        Library:AddToRegistry(ToggleOuter, {
-            BorderColor3 = 'Black';
-        });
-
-        local ToggleInner = Library:Create('Frame', {
-            BackgroundColor3 = Library.MainColor;
-            BorderColor3 = Library.OutlineColor;
-            BorderMode = Enum.BorderMode.Inset;
-            Size = UDim2.new(1, 0, 1, 0);
-            ZIndex = 6;
-            Parent = ToggleOuter;
-        });
-
-        Library:AddToRegistry(ToggleInner, {
-            BackgroundColor3 = 'MainColor';
-            BorderColor3 = 'OutlineColor';
-        });
-
-        local ToggleLabel = Library:CreateLabel({
-            Size = UDim2.new(0, 216, 1, 0);
-            Position = UDim2.new(1, 6, 0, 0);
-            TextSize = 14;
-            Text = Info.Text;
-            TextXAlignment = Enum.TextXAlignment.Left;
-            ZIndex = 6;
-            Parent = ToggleInner;
-        });
-
-        Library:Create('UIListLayout', {
-            Padding = UDim.new(0, 4);
-            FillDirection = Enum.FillDirection.Horizontal;
-            HorizontalAlignment = Enum.HorizontalAlignment.Right;
-            SortOrder = Enum.SortOrder.LayoutOrder;
-            Parent = ToggleLabel;
-        });
-
-        local ToggleRegion = Library:Create('Frame', {
-            BackgroundTransparency = 1;
-            Size = UDim2.new(0, 170, 1, 0);
-            ZIndex = 8;
-            Parent = ToggleOuter;
-        });
-
-        Library:OnHighlight(ToggleRegion, ToggleOuter,
-            { BorderColor3 = 'AccentColor' },
-            { BorderColor3 = 'Black' }
-        );
-
-        function Toggle:UpdateColors()
-            Toggle:Display();
-        end;
-
-        if type(Info.Tooltip) == 'string' then
-            Library:AddToolTip(Info.Tooltip, ToggleRegion)
-        end
-
-        function Toggle:Display()
-            ToggleInner.BackgroundColor3 = Toggle.Value and Library.AccentColor or Library.MainColor;
-            ToggleInner.BorderColor3 = Toggle.Value and Library.AccentColorDark or Library.OutlineColor;
-
-            Library.RegistryMap[ToggleInner].Properties.BackgroundColor3 = Toggle.Value and 'AccentColor' or 'MainColor';
-            Library.RegistryMap[ToggleInner].Properties.BorderColor3 = Toggle.Value and 'AccentColorDark' or 'OutlineColor';
-        end;
-
-        function Toggle:OnChanged(Func)
-            Toggle.Changed = Func;
-            Func(Toggle.Value);
-        end;
-
-        function Toggle:SetValue(Bool)
-            Bool = (not not Bool);
-
-            Toggle.Value = Bool;
-            Toggle:Display();
-
-            for _, Addon in next, Toggle.Addons do
-                if Addon.Type == 'KeyPicker' and Addon.SyncToggleState then
-                    Addon.Toggled = Bool
-                    Addon:Update()
-                end
-            end
-
-            Library:SafeCallback(Toggle.Callback, Toggle.Value);
-            Library:SafeCallback(Toggle.Changed, Toggle.Value);
-            Library:UpdateDependencyBoxes();
-        end;
-
-        ToggleRegion.InputBegan:Connect(function(Input)
-            if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() then
-                Toggle:SetValue(not Toggle.Value) -- Why was it not like this from the start?
-                Library:AttemptSave();
-            end;
+            Textbox:SetValue(Box.Text);
+            Library:AttemptSave();
+        end)
+    else
+        Box:GetPropertyChangedSignal('Text'):Connect(function()
+            Textbox:SetValue(Box.Text);
+            Library:AttemptSave();
         end);
+    end
 
-        if Toggle.Risky then
-            Library:RemoveFromRegistry(ToggleLabel)
-            ToggleLabel.TextColor3 = Library.RiskColor
-            Library:AddToRegistry(ToggleLabel, { TextColor3 = 'RiskColor' })
+    -- Touch-friendly cursor follow (your existing logic, with MouseLocation)
+    local function Update()
+        local PADDING = 2
+        local reveal = Container.AbsoluteSize.X
+
+        if not Box:IsFocused() or Box.TextBounds.X <= reveal - 2 * PADDING then
+            -- we aren't focused, or we fit so be normal
+            Box.Position = UDim2.new(0, PADDING, 0, 0)
+        else
+            -- we are focused and don't fit, so adjust position
+            local cursor = Box.CursorPosition
+            if cursor ~= -1 then
+                -- calculate pixel width of text from start to cursor
+                local subtext = string.sub(Box.Text, 1, cursor-1)
+                local width = TextService:GetTextSize(subtext, Box.TextSize, Box.Font, Vector2.new(math.huge, math.huge)).X
+
+                -- check if we're inside the box with the cursor
+                local currentCursorPos = Box.Position.X.Offset + width
+
+                -- adjust if necessary
+                if currentCursorPos < PADDING then
+                    Box.Position = UDim2.fromOffset(PADDING-width, 0)
+                elseif currentCursorPos > reveal - PADDING - 1 then
+                    Box.Position = UDim2.fromOffset(reveal-width-PADDING-1, 0)
+                end
+            end
+        end
+    end
+
+    task.spawn(Update)
+
+    Box:GetPropertyChangedSignal('Text'):Connect(Update)
+    Box:GetPropertyChangedSignal('CursorPosition'):Connect(Update)
+    Box.FocusLost:Connect(Update)
+    Box.Focused:Connect(Update)
+
+    Library:AddToRegistry(Box, {
+        TextColor3 = 'FontColor';
+    });
+
+    function Textbox:OnChanged(Func)
+        Textbox.Changed = Func;
+        Func(Textbox.Value);
+    end;
+
+    -- Cleanup keyboard conn on destroy
+    Box.AncestryChanged:Connect(function()
+        if not Box.Parent then
+            keyboardConn:Disconnect();
+        end
+    end);
+
+    Groupbox:AddBlank(5);
+    Groupbox:Resize();
+
+    Options[Idx] = Textbox;
+
+    return Textbox;
+end
+
+function Funcs:AddToggle(Idx, Info)
+    assert(Info.Text, 'AddInput: Missing `Text` string.')
+
+    local Toggle = {
+        Value = Info.Default or false;
+        Type = 'Toggle';
+
+        Callback = Info.Callback or function(Value) end;
+        Addons = {},
+        Risky = Info.Risky,
+    };
+
+    local Groupbox = self;
+    local Container = Groupbox.Container;
+
+    local ToggleOuter = Library:Create('Frame', {
+        BackgroundColor3 = Color3.new(0, 0, 0);
+        BorderColor3 = Color3.new(0, 0, 0);
+        Size = UDim2.new(0, 13, 0, 13);
+        ZIndex = 5;
+        Parent = Container;
+    });
+
+    Library:AddToRegistry(ToggleOuter, {
+        BorderColor3 = 'Black';
+    });
+
+    local ToggleInner = Library:Create('Frame', {
+        BackgroundColor3 = Library.MainColor;
+        BorderColor3 = Library.OutlineColor;
+        BorderMode = Enum.BorderMode.Inset;
+        Size = UDim2.new(1, 0, 1, 0);
+        ZIndex = 6;
+        Parent = ToggleOuter;
+    });
+
+    Library:AddToRegistry(ToggleInner, {
+        BackgroundColor3 = 'MainColor';
+        BorderColor3 = 'OutlineColor';
+    });
+
+    local ToggleLabel = Library:CreateLabel({
+        Size = UDim2.new(0, 216, 1, 0);
+        Position = UDim2.new(1, 6, 0, 0);
+        TextSize = 14;
+        Text = Info.Text;
+        TextXAlignment = Enum.TextXAlignment.Left;
+        ZIndex = 6;
+        Parent = ToggleInner;
+    });
+
+    Library:Create('UIListLayout', {
+        Padding = UDim.new(0, 4);
+        FillDirection = Enum.FillDirection.Horizontal;
+        HorizontalAlignment = Enum.HorizontalAlignment.Right;
+        SortOrder = Enum.SortOrder.LayoutOrder;
+        Parent = ToggleLabel;
+    });
+
+    local ToggleRegion = Library:Create('Frame', {
+        BackgroundTransparency = 1;
+        Size = UDim2.new(0, 170, 1, 0);
+        ZIndex = 8;
+        Parent = ToggleOuter;
+    });
+
+    Library:OnHighlight(ToggleRegion, ToggleOuter,
+        { BorderColor3 = 'AccentColor' },
+        { BorderColor3 = 'Black' }
+    );
+
+    function Toggle:UpdateColors()
+        Toggle:Display();
+    end;
+
+    if type(Info.Tooltip) == 'string' then
+        Library:AddToolTip(Info.Tooltip, ToggleRegion)
+    end
+
+    function Toggle:Display()
+        ToggleInner.BackgroundColor3 = Toggle.Value and Library.AccentColor or Library.MainColor;
+        ToggleInner.BorderColor3 = Toggle.Value and Library.AccentColorDark or Library.OutlineColor;
+
+        Library.RegistryMap[ToggleInner].Properties.BackgroundColor3 = Toggle.Value and 'AccentColor' or 'MainColor';
+        Library.RegistryMap[ToggleInner].Properties.BorderColor3 = Toggle.Value and 'AccentColorDark' or 'OutlineColor';
+    end;
+
+    function Toggle:OnChanged(Func)
+        Toggle.Changed = Func;
+        Func(Toggle.Value);
+    end;
+
+    function Toggle:SetValue(Bool)
+        Bool = (not not Bool);
+
+        Toggle.Value = Bool;
+        Toggle:Display();
+
+        for _, Addon in next, Toggle.Addons do
+            if Addon.Type == 'KeyPicker' and Addon.SyncToggleState then
+                Addon.Toggled = Bool
+                Addon:Update()
+            end
         end
 
-        Toggle:Display();
-        Groupbox:AddBlank(Info.BlankSize or 5 + 2);
-        Groupbox:Resize();
-
-        Toggle.TextLabel = ToggleLabel;
-        Toggle.Container = Container;
-        setmetatable(Toggle, BaseAddons);
-
-        Toggles[Idx] = Toggle;
-
+        Library:SafeCallback(Toggle.Callback, Toggle.Value);
+        Library:SafeCallback(Toggle.Changed, Toggle.Value);
         Library:UpdateDependencyBoxes();
-
-        return Toggle;
     end;
+
+    -- Mobile: Long-press for toggle (instant tap on desktop)
+    ToggleRegion.InputBegan:Connect(function(input)
+        if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and not Library:MouseIsOverOpenedFrame() then
+            if Library.IsMobile then
+                -- Long-press on mobile
+                task.spawn(function()
+                    wait(0.3);
+                    if UserInputService:IsTouching(Enum.UserInputType.Touch) then
+                        Toggle:SetValue(not Toggle.Value);
+                        Library:AttemptSave();
+                    end
+                end);
+            else
+                -- Instant on desktop
+                Toggle:SetValue(not Toggle.Value);
+                Library:AttemptSave();
+            end
+        end;
+    end);
+
+    if Toggle.Risky then
+        Library:RemoveFromRegistry(ToggleLabel)
+        ToggleLabel.TextColor3 = Library.RiskColor
+        Library:AddToRegistry(ToggleLabel, { TextColor3 = 'RiskColor' })
+    end
+
+    Toggle:Display();
+    Groupbox:AddBlank(Info.BlankSize or 5 + 2);
+    Groupbox:Resize();
+
+    Toggle.TextLabel = ToggleLabel;
+    Toggle.Container = Container;
+    setmetatable(Toggle, BaseAddons);
+
+    Toggles[Idx] = Toggle;
+
+    Library:UpdateDependencyBoxes();
+
+    return Toggle;
+end
 
     function Funcs:AddSlider(Idx, Info)
         assert(Info.Default, 'AddSlider: Missing default value.');
