@@ -7,7 +7,13 @@ local RunService = game:GetService('RunService')
 local TweenService = game:GetService('TweenService');
 local RenderStepped = RunService.RenderStepped;
 local LocalPlayer = Players.LocalPlayer;
-local Mouse = LocalPlayer:GetMouse();
+
+local MouseLocation = function()
+    return UserInputService:GetMouseLocation()
+end
+
+local IsMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled;
+Library.IsMobile = IsMobile; 
 
 local ProtectGui = protectgui or (syn and syn.protect_gui) or (function() end);
 
