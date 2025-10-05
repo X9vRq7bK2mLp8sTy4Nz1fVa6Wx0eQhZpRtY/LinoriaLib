@@ -297,11 +297,12 @@ function Library:OnHighlight(HighlightInstance, Instance, Properties, Properties
 end;
 
 function Library:MouseIsOverOpenedFrame()
+    local mousePos = MouseLocation();
     for Frame, _ in next, Library.OpenedFrames do
         local AbsPos, AbsSize = Frame.AbsolutePosition, Frame.AbsoluteSize;
 
-        if Mouse.X >= AbsPos.X and Mouse.X <= AbsPos.X + AbsSize.X
-            and Mouse.Y >= AbsPos.Y and Mouse.Y <= AbsPos.Y + AbsSize.Y then
+        if mousePos.X >= AbsPos.X and mousePos.X <= AbsPos.X + AbsSize.X
+            and mousePos.Y >= AbsPos.Y and mousePos.Y <= AbsPos.Y + AbsSize.Y then
 
             return true;
         end;
@@ -309,10 +310,11 @@ function Library:MouseIsOverOpenedFrame()
 end;
 
 function Library:IsMouseOverFrame(Frame)
+    local mousePos = MouseLocation();
     local AbsPos, AbsSize = Frame.AbsolutePosition, Frame.AbsoluteSize;
 
-    if Mouse.X >= AbsPos.X and Mouse.X <= AbsPos.X + AbsSize.X
-        and Mouse.Y >= AbsPos.Y and Mouse.Y <= AbsPos.Y + AbsSize.Y then
+    if mousePos.X >= AbsPos.X and mousePos.X <= AbsPos.X + AbsSize.X
+        and mousePos.Y >= AbsPos.Y and mousePos.Y <= AbsPos.Y + AbsSize.Y then
 
         return true;
     end;
