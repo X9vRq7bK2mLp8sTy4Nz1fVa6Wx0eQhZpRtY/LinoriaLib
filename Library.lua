@@ -49,8 +49,8 @@ local MouseLocation = function()
     return UserInputService:GetMouseLocation()
 end
 
-local IsMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled;
-Library.IsMobile = IsMobile; 
+local IsMobile = InputService.TouchEnabled and not InputService.KeyboardEnabled;
+Library.IsMobile = IsMobile;
 
 local RainbowStep = 0
 local Hue = 0
