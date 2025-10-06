@@ -2679,6 +2679,12 @@ do
             Groupbox:Resize()
         end
 
+		function Label:Remove()
+    self.TextLabel:Destroy()
+    table.remove(self.Container.Parent.Elements, table.find(self.Container.Parent.Elements, self))
+    self.Container.Parent:Resize()
+end
+
         if Label.DoesWrap then
             local _, Y =
                 Library:GetTextBounds(Label.Text, TextLabel.FontFace, TextLabel.TextSize, TextLabel.AbsoluteSize.X)
