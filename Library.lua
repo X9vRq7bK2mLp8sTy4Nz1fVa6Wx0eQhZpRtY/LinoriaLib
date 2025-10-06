@@ -94,6 +94,8 @@ local Library = {
     DPIRegistry = {},
 }
 
+_G.LinoriaWindows = _G.LinoriaWindows or {}  -- Global
+
 local ObsidianImageManager = {
     Assets = {
         TransparencyTexture = {
