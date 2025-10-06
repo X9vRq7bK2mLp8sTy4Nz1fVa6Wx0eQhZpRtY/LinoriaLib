@@ -5815,6 +5815,232 @@ function Library:CreateWindow(WindowInfo)
             end
         end
 
+
+		function Library:AttachToExisting(options)
+    local guiName = options.GuiName or "Obsidian"  -- Default to "Obsidian" from code; override if different
+    local waitTime = options.WaitTime or 10  -- Max seconds to wait for GUI
+
+    -- Wait for existing ScreenGui
+    local startTime = tick()
+    while not CoreGui:FindFirstChild(guiName) and (tick() - startTime < waitTime) do
+        task.wait(0.1)
+    end
+
+    local ScreenGui = CoreGui:FindFirstChild(guiName)
+    if not ScreenGui then
+        error("Existing GUI '" .. guiName .. "' not found within " .. waitTime .. " seconds.")
+    end
+
+    -- Detect MainFrame (named "Main" in code)
+    local MainFrame = ScreenGui:FindFirstChild("Main") or ScreenGui:FindFirstChildOfClass("Frame")
+    if not MainFrame then
+        error("MainFrame not found in existing GUI.")
+    end
+
+    -- Detect Tabs (ScrollingFrame named "Tabs")
+    local Tabs = MainFrame:FindFirstChild("Tabs") or MainFrame:FindFirstChildOfClass("ScrollingFrame")
+    if not Tabs then
+        error("Tabs container not found in existing GUI.")
+    end
+
+    -- Detect Container (Frame named "Container")
+    local Container = MainFrame:FindFirstChild("Container") or MainFrame:FindFirstChild("Container", true)  -- Recursive if nested
+    if not Container then
+        error("Content container not found in existing GUI.")
+    end
+
+    -- Reapply dragging if not present (from Library:MakeDraggable logic)
+    if options.EnableDragging ~= false then
+        local TopBar = MainFrame:FindFirstChildWhichIsA("Frame", true)  -- Assume first frame is TopBar
+        if TopBar then
+            Library:MakeDraggable(MainFrame, TopBar, false, true)
+        end
+    end
+
+    -- Create a mock window table mimicking the original Window from CreateWindow
+    local window = {
+        Tabs = {},  -- To track new tabs added
+    }
+
+    -- Replicate AddTab from original code, but using existing Tabs and Container
+    function window:AddTab(Name, Icon, Description)
+        local TabButton = New("TextButton", {
+            BackgroundColor3 = "MainColor",
+            BackgroundTransparency = 1,
+            Size = UDim2.new(1, 0, 0, 40),
+            Text = "",
+            Parent = Tabs,
+        })
+
+        New("UIPadding", {
+            PaddingBottom = UDim.new(0, 11),
+            PaddingLeft = UDim.new(0, 12),
+            PaddingRight = UDim.new(0, 12),
+            PaddingTop = UDim.new(0, 11),
+            Parent = TabButton,
+        })
+
+        local TabLabel = New("TextLabel", {
+            BackgroundTransparency = 1,
+            Position = UDim2.fromOffset(30, 0),
+            Size = UDim2.new(1, -30, 1, 0),
+            Text = Name,
+            TextSize = 16,
+            TextTransparency = 0.5,
+            TextXAlignment = Enum.TextXAlignment.Left,
+            Parent = TabButton,
+        })
+
+        local TabIcon
+        Icon = Library:GetIcon(Icon)
+        if Icon then
+            TabIcon = New("ImageLabel", {
+                Image = Icon.Url,
+                ImageColor3 = "AccentColor",
+                ImageRectOffset = Icon.ImageRectOffset,
+                ImageRectSize = Icon.ImageRectSize,
+                ImageTransparency = 0.5,
+                Size = UDim2.fromScale(1, 1),
+                SizeConstraint = Enum.SizeConstraint.RelativeYY,
+                Parent = TabButton,
+            })
+        end
+
+        -- TabContainer (content area)
+        local TabContainer = New("Frame", {
+            BackgroundTransparency = 1,
+            Size = UDim2.fromScale(1, 1),
+            Visible = false,
+            Parent = Container,  -- Add to existing Container
+        })
+
+        local TabLeft = New("ScrollingFrame", {
+            AutomaticCanvasSize = Enum.AutomaticSize.Y,
+            BackgroundTransparency = 1,
+            CanvasSize = UDim2.fromScale(0, 0),
+            ScrollBarThickness = 0,
+            Parent = TabContainer,
+        })
+        New("UIListLayout", {
+            Padding = UDim.new(0, 6),
+            Parent = TabLeft,
+        })
+        TabLeft.Size = UDim2.new(0, math.floor(TabContainer.AbsoluteSize.X / 2) - 3, 1, 0)
+        Library:UpdateDPI(TabLeft, { Size = TabLeft.Size })
+
+        local TabRight = New("ScrollingFrame", {
+            AnchorPoint = Vector2.new(1, 0),
+            AutomaticCanvasSize = Enum.AutomaticSize.Y,
+            BackgroundTransparency = 1,
+            CanvasSize = UDim2.fromScale(0, 0),
+            Position = UDim2.fromScale(1, 0),
+            ScrollBarThickness = 0,
+            Parent = TabContainer,
+        })
+        New("UIListLayout", {
+            Padding = UDim.new(0, 6),
+            Parent = TabRight,
+        })
+        TabRight.Size = UDim2.new(0, math.floor(TabContainer.AbsoluteSize.X / 2) - 3, 1, 0)
+        Library:UpdateDPI(TabRight, { Size = TabRight.Size })
+
+        -- Warning box, etc. (copy from original AddTab if needed)
+
+        local Tab = {
+            Groupboxes = {},
+            Tabboxes = {},
+            DependencyGroupboxes = {},
+            Sides = {TabLeft, TabRight},
+            IsKeyTab = false,
+        }
+
+        -- Add hover/show/hide logic (copied/adapted from original)
+        function Tab:Hover(Hovering)
+            TweenService:Create(TabLabel, Library.TweenInfo, {
+                TextTransparency = Hovering and 0.25 or 0.5,
+            }):Play()
+            if TabIcon then
+                TweenService:Create(TabIcon, Library.TweenInfo, {
+                    ImageTransparency = Hovering and 0.25 or 0.5,
+                }):Play()
+            end
+        end
+
+        function Tab:Show()
+            if Library.ActiveTab then
+                Library.ActiveTab:Hide()
+            end
+
+            TweenService:Create(TabButton, Library.TweenInfo, {
+                BackgroundTransparency = 0,
+            }):Play()
+            TweenService:Create(TabLabel, Library.TweenInfo, {
+                TextTransparency = 0,
+            }):Play()
+            if TabIcon then
+                TweenService:Create(TabIcon, Library.TweenInfo, {
+                    ImageTransparency = 0,
+                }):Play()
+            end
+
+            -- Update current tab info if exists
+            if Description then
+                -- Assume global CurrentTabInfo, etc., exist
+                CurrentTabInfo.Visible = true
+                SearchBox.Size = UDim2.fromScale(0.5, 1)
+                CurrentTabLabel.Text = Name
+                CurrentTabDescription.Text = Description
+            end
+
+            TabContainer.Visible = true
+            Library.ActiveTab = Tab
+        end
+
+        function Tab:Hide()
+            TweenService:Create(TabButton, Library.TweenInfo, {
+                BackgroundTransparency = 1,
+            }):Play()
+            TweenService:Create(TabLabel, Library.TweenInfo, {
+                TextTransparency = 0.5,
+            }):Play()
+            if TabIcon then
+                TweenService:Create(TabIcon, Library.TweenInfo, {
+                    ImageTransparency = 0.5,
+                }):Play()
+            end
+            TabContainer.Visible = false
+
+            SearchBox.Size = UDim2.fromScale(1, 1)
+            CurrentTabInfo.Visible = false
+
+            Library.ActiveTab = nil
+        end
+
+        -- AddTab sub-functions like AddGroupbox, etc., from original
+        setmetatable(Tab, BaseGroupbox)  -- Assume BaseGroupbox is defined in lib
+
+        -- Hover and click connections
+        TabButton.MouseEnter:Connect(function()
+            Tab:Hover(true)
+        end)
+        TabButton.MouseLeave:Connect(function()
+            Tab:Hover(false)
+        end)
+        TabButton.MouseButton1Click:Connect(Tab.Show)
+
+        table.insert(window.Tabs, Tab)
+        return Tab
+    end
+
+    -- Add more methods if needed (e.g., AddKeyTab)
+
+    -- Store if desired
+    _G.LinoriaWindows[guiName] = window
+
+    return window
+end
+
+
         function Tab:Resize(ResizeWarningBox: boolean?)
             if ResizeWarningBox then
                 local MaximumSize = math.floor(TabContainer.AbsoluteSize.Y / 3.25)
