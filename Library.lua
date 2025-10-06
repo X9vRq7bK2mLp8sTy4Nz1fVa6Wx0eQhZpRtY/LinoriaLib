@@ -6424,6 +6424,15 @@ function Library:CreateWindow(WindowInfo)
                     Tabbox.ActiveTab = nil
                 end
 
+				function Tab:Remove()
+    self.Holder:Destroy()  -- Tab button
+    self.Container:Destroy()  -- Content
+    table.remove(Library.Tabs, table.find(Library.Tabs, self))
+    if Library.ActiveTab == self then
+        Library.ActiveTab = nil
+    end
+end
+
                 function Tab:Resize()
                     if Tabbox.ActiveTab ~= Tab then
                         return
