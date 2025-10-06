@@ -46,7 +46,10 @@ local Library = {
 };
 
 local MouseLocation = function()
-    return UserInputService:GetMouseLocation()
+    if InputService then
+        return InputService:GetMouseLocation();
+    end
+    return Vector2.new(0, 0); -- Fallback position if service is unavailable
 end
 
 local IsMobile = InputService.TouchEnabled and not InputService.KeyboardEnabled;
