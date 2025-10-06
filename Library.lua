@@ -270,6 +270,16 @@ function Library:AddToolTip(InfoStr, HoverInstance)
     end)
 end
 
+function Library:TouchFeedback(Element)
+    if not Library.IsMobile then return end;
+    local originalSize = Element.Size;
+    local tweenIn = TweenService:Create(Element, TweenInfo.new(0.1, Enum.EasingStyle.Quad), {Size = originalSize * 0.95});
+    tweenIn:Play();
+    tweenIn.Completed:Connect(function()
+        TweenService:Create(Element, TweenInfo.new(0.1, Enum.EasingStyle.Quad), {Size = originalSize}):Play();
+    end);
+end
+
 function Library:OnHighlight(HighlightInstance, Instance, Properties, PropertiesDefault)
     HighlightInstance.MouseEnter:Connect(function()
         local Reg = Library.RegistryMap[Instance];
