@@ -8,13 +8,6 @@ local TweenService = game:GetService('TweenService');
 local RenderStepped = RunService.RenderStepped;
 local LocalPlayer = Players.LocalPlayer;
 
-local MouseLocation = function()
-    return UserInputService:GetMouseLocation()
-end
-
-local IsMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled;
-Library.IsMobile = IsMobile; 
-
 local ProtectGui = protectgui or (syn and syn.protect_gui) or (function() end);
 
 local ScreenGui = Instance.new('ScreenGui');
