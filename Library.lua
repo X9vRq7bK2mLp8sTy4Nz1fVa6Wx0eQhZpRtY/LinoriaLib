@@ -30,7 +30,7 @@ local Options = {}
 local Library = {
     LocalPlayer = LocalPlayer,
     DevicePlatform = nil,
-    IsMobile = false,
+    IsMobile = true,
     IsRobloxFocused = true,
 
     ScreenGui = nil,
