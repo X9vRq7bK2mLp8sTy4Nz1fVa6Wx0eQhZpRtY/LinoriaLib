@@ -3001,6 +3001,12 @@ do
             Button.Base.Text = Text
         end
 
+		function Button:Remove()
+    self.Holder:Destroy()
+    table.remove(self.Container.Parent.Elements, table.find(self.Container.Parent.Elements, self))
+    self.Container.Parent:Resize()
+end
+
         if typeof(Button.Tooltip) == "string" or typeof(Button.DisabledTooltip) == "string" then
             Button.TooltipTable = Library:AddTooltip(Button.Tooltip, Button.DisabledTooltip, Button.Base)
             Button.TooltipTable.Disabled = Button.Disabled
