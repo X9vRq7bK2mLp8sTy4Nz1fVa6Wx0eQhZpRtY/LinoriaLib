@@ -3037,6 +3037,16 @@ function Library:CreateWindow(...)
 
     Library:MakeDraggable(Outer, 25);
 
+    -- Mobile tweaks: Responsive sizing, clip overflow, hide keybinds
+    if Library.IsMobile then
+        Config.Size = UDim2.fromScale(0.95, 0.85);
+        Config.Position = UDim2.fromScale(0.025, 0.075);
+        Outer.Size = Config.Size;
+        Outer.Position = Config.Position;
+        Outer.ClipsDescendants = true;
+        Library.KeybindFrame.Visible = false;  -- Keybinds irrelevant on touch
+    end
+
     local Inner = Library:Create('Frame', {
         BackgroundColor3 = Library.MainColor;
         BorderColor3 = Library.AccentColor;
@@ -3508,8 +3518,8 @@ function Library:CreateWindow(...)
                     BoxOuter.Size = UDim2.new(1, 0, 0, 20 + Size + 2 + 2);
                 end;
 
-                Button.InputBegan:Connect(function(Input)
-                    if Input.UserInputType == Enum.UserInputType.MouseButton1 and not Library:MouseIsOverOpenedFrame() then
+                Button.InputBegan:Connect(function(input)
+                    if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) and not Library:MouseIsOverOpenedFrame() then
                         Tab:Show();
                         Tab:Resize();
                     end;
@@ -3544,8 +3554,8 @@ function Library:CreateWindow(...)
             return Tab:AddTabbox({ Name = Name, Side = 2; });
         end;
 
-        TabButton.InputBegan:Connect(function(Input)
-            if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+        TabButton.InputBegan:Connect(function(input)
+            if (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
                 Tab:ShowTab();
             end;
         end);
@@ -3682,7 +3692,7 @@ function Library:CreateWindow(...)
     Window.Holder = Outer;
 
     return Window;
-end;
+end
 
 local function OnPlayerChange()
     local PlayerList = GetPlayersString();
