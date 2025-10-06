@@ -3196,6 +3196,12 @@ end
             Label.Text = Text
         end
 
+		function Toggle:Remove()
+    self.Holder:Destroy()
+    table.remove(self.Container.Parent.Elements, table.find(self.Container.Parent.Elements, self))
+    self.Container.Parent:Resize()
+end
+
         Button.MouseButton1Click:Connect(function()
             if Toggle.Disabled then
                 return
@@ -3410,6 +3416,12 @@ end
             Button.Visible = Toggle.Visible
             Groupbox:Resize()
         end
+
+		function Toggle:Remove()
+    self.Holder:Destroy()
+    table.remove(self.Container.Parent.Elements, table.find(self.Container.Parent.Elements, self))
+    self.Container.Parent:Resize()
+end
 
         function Toggle:SetText(Text: string)
             Toggle.Text = Text
