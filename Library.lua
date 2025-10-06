@@ -4910,6 +4910,19 @@ do
         return DepGroupbox
     end
 
+function Funcs:RemoveElement(elementType, idx)
+    local elementTable = {
+        Button = Buttons,
+        Toggle = Toggles,
+        Label = Labels,
+        -- Add more: Slider = Options (for sliders), Dropdown = Options, etc.
+    }
+    local element = elementTable[elementType] and elementTable[elementType][idx]
+    if element then
+        element:Remove()
+    end
+end
+
     BaseGroupbox.__index = Funcs
     BaseGroupbox.__namecall = function(_, Key, ...)
         return Funcs[Key](...)
